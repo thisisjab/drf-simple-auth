@@ -29,10 +29,13 @@ class UserManager(BaseUserManager):
     def create_superuser(self, username, email, password, **extra_fields):
         """
         Create and save a superuser with the given username, email and password.
+
+        Note that super users' email is activated by default.
         """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_email_activated', True)
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
