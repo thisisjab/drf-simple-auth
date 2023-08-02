@@ -11,6 +11,8 @@ psycopg2-binary = "*"
 django-debug-toolbar = "*"
 
 [dev-packages]
+pytest = "*"
+pytest-django = "*"
 
 [requires]
 python_version = "3.10"
