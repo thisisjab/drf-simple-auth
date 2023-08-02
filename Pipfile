@@ -9,6 +9,7 @@ django-environ = "*"
 djangorestframework = "*"
 psycopg2-binary = "*"
 django-debug-toolbar = "*"
+redis = "*"
 
 [dev-packages]
 pytest = "*"
