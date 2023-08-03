@@ -30,6 +30,12 @@ services:
       - redis
     volumes:
       - .:/code
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    ports:
+      - 5000:80
+      - 25:25
+    restart: always
 
 volumes:
   postgres_data:
