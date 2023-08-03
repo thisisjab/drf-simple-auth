@@ -10,6 +10,7 @@ djangorestframework = "*"
 psycopg2-binary = "*"
 django-debug-toolbar = "*"
 redis = "*"
+celery = "*"
 
 [dev-packages]
 pytest = "*"
