@@ -11,6 +11,7 @@ psycopg2-binary = "*"
 django-debug-toolbar = "*"
 redis = "*"
 celery = "*"
+django-templated-mail = "*"
 
 [dev-packages]
 pytest = "*"
