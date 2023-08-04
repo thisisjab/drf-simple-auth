@@ -34,7 +34,7 @@ services:
     image: rnwood/smtp4dev:v3
     ports:
       - 5000:80
-      - 25:25
+      - 2525:25
     restart: always
 
 volumes:
