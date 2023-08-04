@@ -146,8 +146,10 @@ CELERY_BROKER_URL = 'redis://redis:6379/0'
 
 # Email conifiguration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'
+EMAIL_HOST = 'smtp4dev'
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
-EMAIL_PORT = 2525
-DEFAULT_FROM_EMAIL = 'from@localhost:8000'
+EMAIL_PORT = 25
+EMAIL_USE_SSL = False
+EMAIL_USE_TLS = False
+DEFAULT_FROM_EMAIL = 'info@localhost'
