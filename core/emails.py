@@ -1,8 +1,8 @@
-from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 from templated_mail.mail import BaseEmailMessage
 
 from .models import User
+from .tokens import email_verification_token_generator
 from . import utils
 
 
@@ -27,7 +27,7 @@ class ActivationEmail(BaseEmailMessage):
             'user-activate',
             kwargs={
                 'uid': utils.encode_uid(user.pk),
-                'token': default_token_generator.make_token(user),
+                'token': email_verification_token_generator.make_token(user),
             },
         )
         return context

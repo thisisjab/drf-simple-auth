@@ -1,8 +1,8 @@
-from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 from .models import User
+from .tokens import email_verification_token_generator
 
 
 def encode_uid(pk):
@@ -31,7 +31,7 @@ def get_user_from_token(uid, token):
     except User.DoesNotExist:
         return None
 
-    if user is not None and default_token_generator.check_token(user, token):
+    if user is not None and email_verification_token_generator.check_token(user, token):
         return user
 
     return None
