@@ -11,5 +11,6 @@ COPY ./Pipfile ./Pipfile.lock .env /code
 RUN pip install pipenv
 
 RUN pipenv install --system --deploy
+RUN pipenv install --dev --system --deploy
 
 COPY . /code
