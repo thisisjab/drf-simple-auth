@@ -2,7 +2,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 import pytest
 
-from core.models import User
+from core.models import User, EmailLog
 
 
 @pytest.fixture
@@ -43,3 +43,15 @@ class TestCreateUser:
         user = User.objects.get(pk=response.data['id'])
 
         assert user.is_email_activated == False
+
+    def test_if_verification_email_is_sent_when_user_created(self, create_user):
+        response = create_user(
+            {'username': 'ali', 'email': 'ali@gmail.com', 'password': 'Test@4321'},
+        )
+
+        user = User.objects.get(pk=response.data['id'])
+        email_log_count = EmailLog.objects.filter(
+            user=user, email_type=EmailLog.EMAIL_VERIFICATION
+        ).count()
+
+        assert email_log_count == 1
