@@ -40,3 +40,30 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+
+class EmailLog(models.Model):
+    """Log model that represents what type of email is sent to which user"""
+    EMAIL_VERIFICATION = 'email_verification'
+    PASSWORD_RESET = 'password_reset'
+    EMAIL_TYPE_CHOICES = [
+        (EMAIL_VERIFICATION, 'Email Verification'),
+        (PASSWORD_RESET, 'Password Rest'),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
+        related_name='email_logs',
+    )
+
+    email_type = models.CharField(
+        'Email Type', blank=False, null=False, choices=EMAIL_TYPE_CHOICES
+    )
+
+    timestamp = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.email_type}"
