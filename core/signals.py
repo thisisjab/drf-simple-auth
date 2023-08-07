@@ -6,9 +6,10 @@ from .tasks import send_activation_email
 
 
 @receiver(post_save, sender=User)
-def user_post_save_send_activation_email(sender, instance, **kwargs):
+def user_post_save_send_activation_email(sender, instance, created, **kwargs):
     """
     This signal sends an activation email to user whenever a new user has
     been created.
     """
-    send_activation_email.delay(instance.pk, instance.email)
+    if created:
+        send_activation_email.delay(instance.pk, instance.email)
