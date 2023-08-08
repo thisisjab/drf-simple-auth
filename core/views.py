@@ -3,14 +3,24 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import User
+from .models import User, EmailLog
 from .serializers import UserCreateSerializer
+from .tasks import send_activation_email
 from . import utils
 
 
 class UserCreateView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserCreateSerializer
+
+    def perform_create(self, serializer):
+        # Here, we are sure that user can be created with no error
+        instance = serializer.save()
+
+        # So, we send an verification email
+        send_activation_email.delay(instance.pk, instance.email)
+        email_log = EmailLog(user=instance, email_type=EmailLog.EMAIL_VERIFICATION)
+        email_log.save()
 
 
 class UserActivateView(APIView):
