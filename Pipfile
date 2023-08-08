@@ -12,6 +12,7 @@ django-debug-toolbar = "*"
 redis = "*"
 celery = "*"
 django-templated-mail = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 pytest = "*"
