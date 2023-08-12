@@ -22,8 +22,5 @@ class AuthenticationBackend(backends.ModelBackend):
             # difference between an existing and a nonexistent user (#20760).
             UserModel().set_password(password)
         else:
-            if not user.is_email_activated:
-                raise ValidationError('Your email is not activated.')
-
             if user.check_password(password) and self.user_can_authenticate(user):
                 return user
