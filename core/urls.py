@@ -11,6 +11,11 @@ urlpatterns = [
         views.UserActivateView.as_view(),
         name='user-activate',
     ),
+    path(
+        'users/send-activation-email/',
+        views.UserSendActivationEmail.as_view(),
+        name='user-send-activation-email',
+    ),
     path('token/', TokenObtainPairView.as_view(), name='token-obtain-pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 ]
