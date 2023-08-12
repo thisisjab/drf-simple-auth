@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import User, EmailLog
+from .emails import ActivationEmail
 from .serializers import UserCreateSerializer
-from .tasks import send_activation_email
 from . import utils
 
 
@@ -18,7 +18,7 @@ class UserCreateView(CreateAPIView):
         instance = serializer.save()
 
         # So, we send an verification email
-        send_activation_email.delay(instance.pk, instance.email)
+        ActivationEmail(context={'user_pk': instance.pk}).send(to=[instance.email])
         email_log = EmailLog(user=instance, email_type=EmailLog.EMAIL_VERIFICATION)
         email_log.save()
 
