@@ -7,12 +7,14 @@ from rest_framework import status
 
 from .models import User, EmailLog
 from .emails import ActivationEmail
+from .pagination import UserDefaultPagination
 from .serializers import UserCreateSerializer
 from . import utils
 
 
 class UserListView(ListCreateAPIView):
     queryset = User.objects.all()
+    pagination_class = UserDefaultPagination
     serializer_class = UserCreateSerializer
 
     def perform_create(self, serializer):
