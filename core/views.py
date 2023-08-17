@@ -1,5 +1,5 @@
 from django.utils import timezone
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,7 +8,7 @@ from rest_framework import status
 from .models import User, EmailLog
 from .emails import ActivationEmail
 from .pagination import UserDefaultPagination
-from .serializers import UserCreateSerializer
+from .serializers import UserCreateSerializer, UserDetailSerializer
 from . import utils
 
 
@@ -25,6 +25,13 @@ class UserListView(ListCreateAPIView):
         ActivationEmail(context={'user_pk': instance.pk}).send(to=[instance.email])
         email_log = EmailLog(user=instance, email_type=EmailLog.EMAIL_VERIFICATION)
         email_log.save()
+
+    
+class UserDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserDetailSerializer
+    lookup_field = 'username'
+
 
 
 class UserActivateView(APIView):
