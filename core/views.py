@@ -15,7 +15,6 @@ from . import utils
 class UserListView(ListCreateAPIView):
     queryset = User.objects.all()
     pagination_class = UserDefaultPagination
-    serializer_class = UserCreateSerializer
 
     def perform_create(self, serializer):
         # Here, we are sure that user can be created with no error
@@ -25,6 +24,13 @@ class UserListView(ListCreateAPIView):
         ActivationEmail(context={'user_pk': instance.pk}).send(to=[instance.email])
         email_log = EmailLog(user=instance, email_type=EmailLog.EMAIL_VERIFICATION)
         email_log.save()
+
+    def get_serializer_class(self):
+        return (
+            UserCreateSerializer
+            if self.request.method == 'POST'
+            else UserDetailSerializer
+        )
 
 
 class UserDetailView(RetrieveUpdateDestroyAPIView):
