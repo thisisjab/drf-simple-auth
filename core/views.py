@@ -45,7 +45,7 @@ class UserActivateView(APIView):
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserSendActivationEmail(APIView):
+class UserRequestActivationEmailView(APIView):
     """Send user an activation email
 
     Each user can request 20 email verification email in total.
