@@ -13,9 +13,9 @@ urlpatterns = [
         name='user-activate',
     ),
     path(
-        'users/send-activation-email/',
+        'users/request-activation-email/',
         views.UserSendActivationEmail.as_view(),
-        name='user-send-activation-email',
+        name='user-request-activation-email',
     ),
     path('token/', TokenObtainPairView.as_view(), name='token-obtain-pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
