@@ -26,12 +26,11 @@ class UserListView(ListCreateAPIView):
         email_log = EmailLog(user=instance, email_type=EmailLog.EMAIL_VERIFICATION)
         email_log.save()
 
-    
+
 class UserDetailView(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserDetailSerializer
     lookup_field = 'username'
-
 
 
 class UserActivateView(APIView):
@@ -55,15 +54,31 @@ class UserSendActivationEmail(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        if request.user.is_email_activated:
+    def get(self, request, username):
+        if not request.user.is_superuser and request.user.username != username:
+            # users cannot request activation email for others
+            return Response(
+                {
+                    'error': 'Requesting activation email for other users is not allowed.'
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if user.is_email_activated:
             return Response(
                 {'error': 'Email is already activated.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         queryset = EmailLog.objects.filter(
-            user=request.user, email_type=EmailLog.EMAIL_VERIFICATION
+            user=user, email_type=EmailLog.EMAIL_VERIFICATION
         )
 
         if queryset.count() > 20:
@@ -74,21 +89,20 @@ class UserSendActivationEmail(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        delta = timezone.now() - queryset.order_by('timestamp').last().timestamp
-        period = timezone.timedelta(minutes=15)
-        if delta < period:
-            return Response(
-                {
-                    'error': 'Too many requests. Wait a little bit.',
-                    'wait_time': f'{(period - delta).total_seconds()}',
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if queryset.count() != 0:
+            delta = timezone.now() - queryset.order_by('timestamp').last().timestamp
+            period = timezone.timedelta(minutes=15)
+            if delta < period:
+                return Response(
+                    {
+                        'error': 'Too many requests. Wait a little bit.',
+                        'wait_time': f'{(period - delta).total_seconds()}',
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        ActivationEmail(context={'user_pk': request.user.pk}).send(
-            to=[request.user.email]
-        )
-        email_log = EmailLog(user=request.user, email_type=EmailLog.EMAIL_VERIFICATION)
+        ActivationEmail(context={'user_pk': user.pk}).send(to=[user.email])
+        email_log = EmailLog(user=user, email_type=EmailLog.EMAIL_VERIFICATION)
         email_log.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
