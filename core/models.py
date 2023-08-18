@@ -28,6 +28,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         error_messages={'unique': 'This email is used before.'},
     )
 
+    password_reset_token = models.CharField(max_length=255, null=True, blank=True)
+
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_email_activated = models.BooleanField(default=False)
@@ -44,6 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class EmailLog(models.Model):
     """Log model that represents what type of email is sent to which user"""
+
     EMAIL_VERIFICATION = 'email_verification'
     PASSWORD_RESET = 'password_reset'
     EMAIL_TYPE_CHOICES = [
