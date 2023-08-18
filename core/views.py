@@ -39,33 +39,6 @@ class UserViewSet(ModelViewSet):
         email_log.save()
 
 
-class UserListView(ListCreateAPIView):
-    queryset = User.objects.all()
-    pagination_class = UserDefaultPagination
-
-    def perform_create(self, serializer):
-        # Here, we are sure that user can be created with no error
-        instance = serializer.save()
-
-        # So, we send an verification email
-        ActivationEmail(context={'user_pk': instance.pk}).send(to=[instance.email])
-        email_log = EmailLog(user=instance, email_type=EmailLog.EMAIL_VERIFICATION)
-        email_log.save()
-
-    def get_serializer_class(self):
-        return (
-            UserCreateSerializer
-            if self.request.method == 'POST'
-            else UserDetailSerializer
-        )
-
-
-class UserDetailView(RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserDetailSerializer
-    lookup_field = 'username'
-
-
 class UserActivateView(APIView):
     def get(self, request, uid, token):
         user = utils.get_user_from_token(uid, token)
