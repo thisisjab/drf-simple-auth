@@ -8,6 +8,11 @@ router = routers.DefaultRouter()
 router.register('users', views.UserViewSet)
 
 urlpatterns = [
+    path(
+        'users/set-password/',
+        views.UserSetPasswordView.as_view(),
+        name='user-set-password',
+    ),
     path('', include(router.urls)),
     path(
         'users/activate/<uid>/<token>',
