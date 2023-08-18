@@ -84,3 +84,50 @@ class UserDetailSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class CurrentPasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(style={'input_type': 'password'})
+
+    default_error_messages = {'invalid_password': 'Current password is invalid.'}
+
+    def validate_current_password(self, value):
+        """Check if password is valid for given user."""
+        if self.context['request'].user.check_password(value):
+            return value
+        else:
+            self.fail('invalid_password')
+
+
+class PasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(style={'input_type': 'password'})
+
+    def validate(self, attrs):
+        user = getattr(self, 'user', None) or self.context['request'].user
+        # why assert? There are ValidationError / fail everywhere
+        assert user is not None
+
+        try:
+            validate_password(attrs['new_password'], user)
+        except ValidationError as e:
+            raise serializers.ValidationError({'new_password': list(e.messages)})
+        return super().validate(attrs)
+
+
+class PasswordRetypeSerializer(PasswordSerializer):
+    re_new_password = serializers.CharField(style={'input_type': 'password'})
+
+    default_error_messages = {
+        'password_mismatch': 'Passwords do not match.'
+    }
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        if attrs['new_password'] == attrs['re_new_password']:
+            return attrs
+        else:
+            self.fail('password_mismatch')
+
+
+class PasswordChangeSerializer(CurrentPasswordSerializer, PasswordRetypeSerializer):
+    pass
