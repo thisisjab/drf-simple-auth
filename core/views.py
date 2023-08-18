@@ -1,4 +1,5 @@
 from django.utils import timezone
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -8,8 +9,34 @@ from rest_framework import status
 from .models import User, EmailLog
 from .emails import ActivationEmail
 from .pagination import UserDefaultPagination
-from .serializers import UserCreateSerializer, UserDetailSerializer
+from .serializers import (
+    UserCreateSerializer,
+    UserDetailSerializer,
+    PasswordChangeSerializer,
+)
 from . import utils
+
+
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    pagination_class = UserDefaultPagination
+    lookup_field = 'username'
+    
+    def get_serializer_class(self):
+        return (
+            UserCreateSerializer
+            if self.request.method == 'POST'
+            else UserDetailSerializer
+        )
+
+    def perform_create(self, serializer):
+        # Here, we are sure that user can be created with no error
+        instance = serializer.save()
+
+        # So, we send an verification email
+        ActivationEmail(context={'user_pk': instance.pk}).send(to=[instance.email])
+        email_log = EmailLog(user=instance, email_type=EmailLog.EMAIL_VERIFICATION)
+        email_log.save()
 
 
 class UserListView(ListCreateAPIView):
