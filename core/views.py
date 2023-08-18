@@ -38,6 +38,23 @@ class UserViewSet(ModelViewSet):
         email_log.save()
 
 
+class UserSetPasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """Change current user password."""
+        serializer = PasswordChangeSerializer(
+            data=request.data, context={'request': request}
+        )
+        if serializer.is_valid():
+            user = request.user
+            user.set_password(serializer.data['new_password'])
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class UserActivateView(APIView):
     def get(self, request, uid, token):
         user = utils.get_user_from_token(uid, token)
