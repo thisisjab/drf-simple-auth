@@ -12,6 +12,7 @@ from .serializers import (
     UserCreateSerializer,
     UserDetailSerializer,
     PasswordChangeSerializer,
+    EmailSerializer,
 )
 from .tokens import email_verification_token_generator
 from . import utils
@@ -127,5 +128,21 @@ class UserRequestActivationEmailView(APIView):
         ActivationEmail(context={'user_pk': user.pk}).send(to=[user.email])
         email_log = EmailLog(user=user, email_type=EmailLog.EMAIL_VERIFICATION)
         email_log.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ResetPasswordView(APIView):
+    def post(self, request):
+        """Send a password reset email if user exists with given email."""
+        serializer = EmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            user = User.objects.get(email=serializer.data['email'])
+        except User.DoesNotExist:
+            pass
+
+        # TODO: add email login here
 
         return Response(status=status.HTTP_204_NO_CONTENT)
