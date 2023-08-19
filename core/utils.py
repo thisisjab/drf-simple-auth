@@ -13,7 +13,7 @@ def decode_uid(pk):
     return force_str(urlsafe_base64_decode(pk))
 
 
-def get_user_from_token(uid, token):
+def get_user_from_token(uid, token, token_generator):
     """Get user from uid and check if token is valid for that user
 
     Args:
@@ -31,7 +31,7 @@ def get_user_from_token(uid, token):
     except User.DoesNotExist:
         return None
 
-    if user is not None and email_verification_token_generator.check_token(user, token):
+    if user is not None and token_generator.check_token(user, token):
         return user
 
     return None

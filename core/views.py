@@ -13,6 +13,7 @@ from .serializers import (
     UserDetailSerializer,
     PasswordChangeSerializer,
 )
+from .tokens import email_verification_token_generator
 from . import utils
 
 
@@ -57,7 +58,7 @@ class UserSetPasswordView(APIView):
 
 class UserActivateView(APIView):
     def get(self, request, uid, token):
-        user = utils.get_user_from_token(uid, token)
+        user = utils.token_generator(uid, token, email_verification_token_generator)
         if user:
             user.is_email_activated = True
             user.save()
