@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -5,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from .emails import ActivationEmail
+from .emails import ActivationEmail, PasswordResetEmail
 from .models import User, EmailLog
 from .pagination import UserDefaultPagination
 from .serializers import (
@@ -14,7 +15,7 @@ from .serializers import (
     PasswordChangeSerializer,
     EmailSerializer,
 )
-from .tokens import email_verification_token_generator
+from .tokens import email_verification_token_generator, one_time_token_generator
 from . import utils
 
 
@@ -133,6 +134,12 @@ class UserRequestActivationEmailView(APIView):
 
 
 class ResetPasswordView(APIView):
+    """Send user a password reset email
+
+    Each user can request 20 password reset email in total.
+    Each user can request one single email every 15 minutes.
+    """
+
     def post(self, request):
         """Send a password reset email if user exists with given email."""
         serializer = EmailSerializer(data=request.data)
@@ -141,8 +148,49 @@ class ResetPasswordView(APIView):
         try:
             user = User.objects.get(email=serializer.data['email'])
         except User.DoesNotExist:
-            pass
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
 
-        # TODO: add email login here
+        queryset = EmailLog.objects.filter(
+            user=user, email_type=EmailLog.PASSWORD_RESET
+        )
+
+        if queryset.count() > 20:
+            return Response(
+                {
+                    'error': 'Too many requests. You have reached max number of allowed password reset email.'
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if queryset.count() != 0:
+            delta = timezone.now() - queryset.order_by('timestamp').last().timestamp
+            period = timezone.timedelta(minutes=15)
+            if delta < period:
+                return Response(
+                    {
+                        'error': 'Too many requests. Wait a little bit.',
+                        'wait_time': f'{(period - delta).total_seconds()}',
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        # Here, everything is fine to generate a toekn, save the token in user
+        # table and send the email
+        token = one_time_token_generator.make_token(user)
+        with transaction.atomic():
+
+            user.password_reset_token = token
+            user.save()
+
+            PasswordResetEmail(
+                context={
+                    'user_pk': user.pk,
+                    'token': token,
+                }
+            ).send(to=[user.email])
+
+            email_log = EmailLog(user=user, email_type=EmailLog.PASSWORD_RESET)
+            email_log.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
