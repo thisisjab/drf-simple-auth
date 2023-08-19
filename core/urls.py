@@ -13,7 +13,6 @@ urlpatterns = [
         views.UserSetPasswordView.as_view(),
         name='user-set-password',
     ),
-    path('', include(router.urls)),
     path(
         'users/activate/<uid>/<token>',
         views.UserActivateView.as_view(),
@@ -24,6 +23,7 @@ urlpatterns = [
         views.UserRequestActivationEmailView.as_view(),
         name='user-request-activation-email',
     ),
+    path('', include(router.urls)),
     path('token/', TokenObtainPairView.as_view(), name='token-obtain-pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 ]
