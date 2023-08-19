@@ -14,6 +14,11 @@ urlpatterns = [
         name='user-set-password',
     ),
     path(
+        'users/reset-password/',
+        views.ResetPasswordView.as_view(),
+        name='user-reset-password',
+    ),
+    path(
         'users/activate/<uid>/<token>',
         views.UserActivateView.as_view(),
         name='user-activate',
