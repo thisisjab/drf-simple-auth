@@ -131,3 +131,7 @@ class PasswordRetypeSerializer(PasswordSerializer):
 
 class PasswordChangeSerializer(CurrentPasswordSerializer, PasswordRetypeSerializer):
     pass
+
+
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
