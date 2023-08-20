@@ -2,7 +2,6 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 from .models import User
-from .tokens import email_verification_token_generator
 
 
 def encode_uid(pk):
