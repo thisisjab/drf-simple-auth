@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -21,9 +21,9 @@ from . import utils
 
 
 class UserViewSet(ModelViewSet):
+    lookup_field = 'username'
     queryset = User.objects.all()
     pagination_class = UserDefaultPagination
-    lookup_field = 'username'
 
     def get_serializer_class(self):
         return (
