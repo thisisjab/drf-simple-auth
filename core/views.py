@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -40,6 +40,23 @@ class UserViewSet(ModelViewSet):
         ActivationEmail(context={'user_pk': instance.pk}).send(to=[instance.email])
         email_log = EmailLog(user=instance, email_type=EmailLog.EMAIL_VERIFICATION)
         email_log.save()
+
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = [IsAdminUser]
+        elif self.action == 'create':
+            permission_classes = [AllowAny]
+        elif self.action in {'retrieve', 'update', 'partial_update'}:
+            # Admin users can retrieve/update anyone
+            # Normal users can only retrieve/update themselves
+            if self.request.user.username == self.kwargs['username']:
+                permission_classes = [AllowAny]
+            else:
+                permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAdminUser]
+
+        return [permission() for permission in permission_classes]
 
 
 class UserSetPasswordView(APIView):
