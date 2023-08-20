@@ -14,6 +14,7 @@ from .serializers import (
     UserDetailSerializer,
     PasswordChangeSerializer,
     EmailSerializer,
+    ResetPasswordConfirmSerializer,
 )
 from .tokens import email_verification_token_generator, one_time_token_generator
 from . import utils
@@ -150,7 +151,6 @@ class ResetPasswordView(APIView):
         except User.DoesNotExist:
             return Response(status=status.HTTP_204_NO_CONTENT)
         
-
         queryset = EmailLog.objects.filter(
             user=user, email_type=EmailLog.PASSWORD_RESET
         )
@@ -179,7 +179,6 @@ class ResetPasswordView(APIView):
         # table and send the email
         token = one_time_token_generator.make_token(user)
         with transaction.atomic():
-
             user.password_reset_token = token
             user.save()
 
@@ -194,3 +193,29 @@ class ResetPasswordView(APIView):
             email_log.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ResetPasswordConfirmView(APIView):
+    def post(self, request):
+        """Validate uid, token, and new password and change the password."""
+        serializer = ResetPasswordConfirmSerializer(
+            data=request.data, context={'request': request}
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        uid = serializer.data['uid']
+        token = serializer.data['token']
+        new_password = serializer.data['new_password']
+
+        user = utils.get_user_from_token(uid, token, one_time_token_generator)
+
+        print(user)
+
+        if user:
+            user.set_password(new_password)
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        errors = {'error': 'Token is invalid.'}
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
