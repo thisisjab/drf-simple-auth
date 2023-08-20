@@ -135,3 +135,8 @@ class PasswordChangeSerializer(CurrentPasswordSerializer, PasswordRetypeSerializ
 
 class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
+
+
+class ResetPasswordConfirmSerializer(PasswordRetypeSerializer):
+    uid = serializers.CharField(required=True, max_length=255)
+    token = serializers.CharField(required=True, max_length=255)
