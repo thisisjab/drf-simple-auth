@@ -19,6 +19,11 @@ urlpatterns = [
         name='user-reset-password',
     ),
     path(
+        'users/reset-password-confirm/',
+        views.ResetPasswordConfirmView.as_view(),
+        name='user-reset-password-confirm',
+    ),
+    path(
         'users/activate/<uid>/<token>',
         views.UserActivateView.as_view(),
         name='user-activate',
