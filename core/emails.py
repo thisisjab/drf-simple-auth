@@ -2,7 +2,7 @@ from django.urls import reverse
 from templated_mail.mail import BaseEmailMessage
 
 from .models import User
-from .tokens import email_verification_token_generator, one_time_token_generator
+from .tokens import email_verification_token_generator
 from . import utils
 
 
