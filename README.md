@@ -1,22 +1,13 @@
-# Minimal Twitter API
+# DRF Auth  
 
-This is a minimal API that replicates Twitter's API in a minimal way. Main functionalities are:
+In this project I've implemented a regular authentiaction system using DRF. Current features:
 
-- Viewing, createing, and deleting tweets
-- Filtering tweets based on various fields such as user, date, hashtags
-- Replying tweets
-- Liking tweets
-- Following public profiles or sending follow requests to private profiles
+- Sign up using email validation
+- Requesting email validation email with timeoouts
+- Login using JWT token
+- Reset password
 
-## Future features
-
-These features neither are implemented or being implemented. Aftering finishing the main functionalities that are mentioned periviously, these features will be added, too.
-
-- Sending and recieving direct messages
-- Blocking users
-- Mentioning other profiles
-- Adding media to tweets
-- Retweeting
+__Note__: This project is not maintained any further.
 
 ## How to run this project?
 
