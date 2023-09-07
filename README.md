@@ -1,4 +1,4 @@
-# DRF Auth  
+# DRF Simple Auth  
 
 In this project I've implemented a regular authentiaction system using DRF. Current features:
 
